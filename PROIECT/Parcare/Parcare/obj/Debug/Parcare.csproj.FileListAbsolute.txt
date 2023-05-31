@@ -1,0 +1,8 @@
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\bin\Debug\Parcare.exe.config
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\bin\Debug\Parcare.exe
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\bin\Debug\Parcare.pdb
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\obj\Debug\Parcare.csproj.AssemblyReference.cache
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\obj\Debug\Parcare.csproj.SuggestedBindingRedirects.cache
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\obj\Debug\Parcare.csproj.CoreCompileInputs.cache
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\obj\Debug\Parcare.exe
+C:\Users\grati\Desktop\PIU\PROIECT\Parcare\Parcare\obj\Debug\Parcare.pdb

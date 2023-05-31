@@ -1,0 +1,415 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Schema;
+
+using Parcare;
+
+using static Parcare.Car;
+
+namespace InterfataUtilizator_WindowsForms
+{
+    public partial class Form1 : Form
+    {
+        AdministrareMasini_FisierText adminCar;
+        private Label lblMasina;
+        private Label lblID;
+        private Label lblTip;
+        private Label lblSOLD;
+        
+        private const int LATIME_CONTROL = 100;
+        private const int DIMENSIUNE_PAS_Y = 22;
+        private const int DIMENSIUNE_PAS_X = 100;
+
+        private Label[] lblsID;
+        private Label[] lblsTip;
+        private Label[] lblsSOLD;
+
+
+        private Button btnAfisareIdMasini;
+        private Button btnAfisareTipMasina;
+        private Button btnAfisareSoldMasina;
+
+        private Button btnAdauga;
+        private Button btnRefresh;
+
+        private TextBox txtID;
+        private TextBox txtTip;
+        private TextBox txtSOLD;
+
+        private Label[] lbllastID;
+        private Label[] lbllastTip; 
+        private Label[] lbllastSOLD;
+
+        
+        public Form1()
+        {
+
+
+            
+            string locatieFisierSolutie = Path.Combine(Application.StartupPath, "NumeFisier.txt");
+            adminCar = new AdministrareMasini_FisierText(locatieFisierSolutie);
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            InitializeComponent();
+
+          
+            //creare
+            LinearGradientBrush gradient = new LinearGradientBrush(
+                ClientRectangle,
+                Color.LightCoral,
+                Color.LightBlue,
+                LinearGradientMode.Horizontal);
+            //setare
+            BackgroundImage = new Bitmap(ClientSize.Width, ClientSize.Height);
+            using (Graphics g = Graphics.FromImage(BackgroundImage))
+            {
+                g.FillRectangle(gradient, ClientRectangle);
+            }
+
+            
+
+           
+            lblMasina = new Label();
+            lblMasina.Text = "Masini";
+            lblMasina.BackColor = Color.Transparent;
+            lblMasina.Font = new Font(Font, FontStyle.Bold);
+            lblMasina.TextAlign = ContentAlignment.MiddleCenter;
+            Point pont3 = new Point(300, 0);
+            lblMasina.Location = pont3;
+            this.Controls.Add(lblMasina);
+
+            lblID = new Label();
+            lblID.Text = "ID";
+            lblID.BackColor = Color.LightGreen;
+            lblID.TextAlign = ContentAlignment.MiddleCenter;
+            Point pont4 = new Point(200, 22);
+            lblID.Location = pont4;
+            this.Controls.Add(lblID);
+
+
+
+            
+
+            lblTip = new Label();
+            lblTip.Text = "TIP:";
+            lblTip.BackColor = Color.LightGreen;
+            lblTip.TextAlign = ContentAlignment.MiddleCenter;
+            Point pont5 = new Point(300, 22);
+            lblTip.Location = pont5;
+            this.Controls.Add(lblTip);
+           
+
+            lblSOLD = new Label();
+            lblSOLD.Text = "Sold:";
+            lblSOLD.BackColor = Color.LightGreen;
+            lblSOLD.TextAlign = ContentAlignment.MiddleCenter;
+            Point pont7 = new Point(400, 22);
+            lblSOLD.Location = pont7;
+            this.Controls.Add(lblSOLD);
+           
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D; // setare tip chenar
+            this.Size = new Size(800, 600);
+            this.StartPosition = FormStartPosition.CenterScreen; // centra formei in cadrul ecranulu
+            this.BackColor = Color.LightBlue;
+
+
+            //BUTOANE
+
+            btnAfisareIdMasini = new Button();
+            btnAfisareIdMasini.Text = "Afișare &ID mașini";
+            btnAfisareIdMasini.Location = new Point(DIMENSIUNE_PAS_X, 44 );
+            btnAfisareIdMasini.Click += BtnAfisareIdMasini_Click;
+            this.Controls.Add(btnAfisareIdMasini);
+
+
+            btnAfisareTipMasina = new Button();
+            btnAfisareTipMasina.Text = "Afisare &Tip mașini";
+            btnAfisareTipMasina.Location = new Point(DIMENSIUNE_PAS_X, 66);
+            btnAfisareTipMasina.Click += BtnAfisareTipMasina_Click;
+            this.Controls.Add(btnAfisareTipMasina);
+
+            btnAfisareSoldMasina = new Button();
+            btnAfisareSoldMasina.Text = "Afisare &Sold mașini";
+            btnAfisareSoldMasina.Location = new Point( DIMENSIUNE_PAS_X, 88 );
+            btnAfisareSoldMasina.Click += BtnAfisareSoldMasina_Click;
+            this.Controls.Add(btnAfisareSoldMasina);
+            
+           
+            txtID = new TextBox();
+            txtID.Location = new Point(2*DIMENSIUNE_PAS_X,22+DIMENSIUNE_PAS_Y);
+            this.Controls.Add(txtID);
+
+            txtTip=new TextBox();
+            txtTip.Location = new Point(3 * DIMENSIUNE_PAS_X, 22 + DIMENSIUNE_PAS_Y);
+            this.Controls.Add(txtTip);
+
+            txtSOLD = new TextBox();
+            txtSOLD.Location = new Point(4 * DIMENSIUNE_PAS_X, 22 + DIMENSIUNE_PAS_Y);
+            this.Controls.Add(txtSOLD);
+
+            btnAdauga = new Button();
+            btnAdauga.Text = "Adauga";
+            btnAdauga.Location = new Point(5 * DIMENSIUNE_PAS_X, 22 + DIMENSIUNE_PAS_Y);
+            btnAdauga.Click += BtnAdauga_click;
+            this.Controls.Add(btnAdauga);
+
+
+            btnRefresh = new Button();
+            btnRefresh.Text = "Refresh";
+            btnRefresh.Location = new Point(5 * DIMENSIUNE_PAS_X, 44 + DIMENSIUNE_PAS_Y);
+            btnRefresh.Click += BtnRefreshClicked;
+            this.Controls.Add((btnRefresh));
+
+            AfiseazaMasini();
+
+
+            InitializeComponent();
+        }
+        private void BtnAdauga_click(object sender, EventArgs e)
+        {
+            string ID = txtID.Text;
+            string tip = txtTip.Text;
+            string SOLD = txtSOLD.Text;
+            double soldValue;
+            CarType carType;
+            // Convertim textul introdus în txtTip la formatul specificat în enum-ul CarType
+            tip = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tip.ToLower());
+            // Convertim textul introdus în txtTip la valoarea corespunzătoare din enum-ul CarType
+           
+            Double.TryParse(SOLD, out soldValue);
+            int errorCode = ValidateInput(ID, tip, SOLD);
+            if (!Enum.TryParse(tip, true, out carType))
+            {
+                // Dacă nu se poate face conversia, afișăm un mesaj de eroare și ieșim din metoda BtnAdauga_click
+                // string.Join(", ", Enum.GetNames(typeof(CarType))) imi afiseaza ce avem in enumerarea CarTYpe
+                MessageBox.Show("Tipul introdus nu este valid. Vă rugăm să introduceți una din următoarele valori: " + string.Join(", ", Enum.GetNames(typeof(CarType))), "Eroare TIP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (errorCode == 0)
+            {
+                Car c = new Car(ID, soldValue, carType);
+                adminCar.AddCarFisier(c);
+            }
+            else
+            {
+                MessageBox.Show("Introduceți informațiile corecte!", "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+        private int ValidateInput(string ID, string tip, string Sold)
+        {
+            int errorCode = 0;
+            if (string.IsNullOrEmpty(ID))
+            {
+                lblID.ForeColor = Color.Red;
+                errorCode = 1;
+            }
+            else if (ID.Length > 7)
+            {
+                lblID.ForeColor = Color.Red;
+                errorCode = 2;
+            }
+            else
+            {
+                lblID.ForeColor = Color.Black;
+            }
+
+            if (string.IsNullOrEmpty(tip))
+            {
+                lblTip.ForeColor = Color.Red;
+                errorCode = 3;
+            }
+            else if (tip.Length > 15)
+            {
+                lblTip.ForeColor = Color.Red;
+                errorCode = 4;
+            }
+            else
+            {
+                lblTip.ForeColor = Color.Black;
+            }
+
+            if (string.IsNullOrEmpty(Sold))
+            {
+                lblSOLD.ForeColor = Color.Red;
+                errorCode = 5;
+            }
+            else
+            {
+                lblSOLD.ForeColor = Color.Black;
+            }
+
+            return errorCode;
+        }
+
+
+        private void BtnRefreshClicked(object sender, EventArgs e)
+        {
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            lbllastID = new Label[nrCars];
+            lbllastTip= new Label[nrCars];
+            lbllastSOLD = new Label[nrCars];
+            Car lastcar = cars[nrCars - 1];
+            if(lastcar!=null)
+            {
+                lbllastID[lbllastID.Length - 1] = new Label();
+                lbllastID[lbllastID.Length - 1].Width = LATIME_CONTROL;
+                lbllastID[lbllastID.Length - 1].Text = lastcar.ID;
+                lbllastID[lbllastID.Length - 1].Location = new Point(2 * DIMENSIUNE_PAS_X, 44 + DIMENSIUNE_PAS_Y * nrCars);
+                lbllastID[lbllastID.Length - 1].TextAlign = ContentAlignment.MiddleCenter;
+                lbllastID[lbllastID.Length - 1].Font = new Font("Times New Roman", 12, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+                lbllastID[lbllastID.Length - 1].ForeColor = Color.Blue;
+                this.Controls.Add(lbllastID[lbllastID.Length-1]);
+
+
+                lbllastTip[lbllastID.Length - 1]=new Label();
+                lbllastTip[lbllastID.Length - 1].Width=LATIME_CONTROL;
+                lbllastTip[lbllastID.Length - 1].Text = lastcar.TypeofCar.ToString();
+                lbllastTip[lbllastID.Length - 1].Location=new Point(3*DIMENSIUNE_PAS_X,44+DIMENSIUNE_PAS_Y*nrCars);
+                lbllastTip[lbllastID.Length - 1].TextAlign = ContentAlignment.MiddleCenter;
+                lbllastTip[lbllastID.Length - 1].Font = new Font("Times New Roman", 12, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+                lbllastTip[lbllastID.Length - 1].ForeColor = Color.Blue;
+                this.Controls.Add(lbllastTip[lbllastID.Length - 1]);
+
+
+                lbllastSOLD[lbllastSOLD.Length-1]=new Label();
+                lbllastSOLD[lbllastSOLD.Length - 1].Width = LATIME_CONTROL;
+                lbllastSOLD[lbllastSOLD.Length - 1].Text=lastcar.Balance.ToString();
+                lbllastSOLD[lbllastSOLD.Length - 1].Location = new Point(4 * DIMENSIUNE_PAS_X, 44 + DIMENSIUNE_PAS_Y * nrCars);
+                lbllastSOLD[lbllastSOLD.Length - 1].TextAlign = ContentAlignment.MiddleCenter;
+                lbllastSOLD[lbllastSOLD.Length - 1].Font = new Font("Courier New", 12);
+                lbllastSOLD[lbllastSOLD.Length - 1].ForeColor = Color.Blue;
+                this.Controls.Add(lbllastSOLD[lbllastSOLD.Length - 1]);
+
+            }
+        }
+        private void BtnAfisareSoldMasina_Click(object sender, EventArgs e)
+        {
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            string listaSoldMasini = "Lista de Sold-uri de masini:\n";
+            for (int i = 0; i < nrCars; i++)
+            {
+                listaSoldMasini += cars[i].Balance.ToString() + "Lei" + "\n";
+            }
+            MessageBox.Show(listaSoldMasini);
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            AfiseazaMasini();
+
+        }
+        private void AfiseazaMasini()
+        {
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            lblsID = new Label[nrCars];
+            lblsSOLD = new Label[nrCars];
+            lblsTip = new Label[nrCars];
+            int i = 0;
+            foreach(Car car in cars)
+            {
+                lblsID[i] = new Label();
+                Point point2 = new Point(200, 66 + DIMENSIUNE_PAS_Y * i);
+                lblsID[i].Location = point2;
+                lblsID[i].Text = cars[i].ID.ToString();
+                lblsID[i].TextAlign = ContentAlignment.MiddleCenter;
+                lblsID[i].Font = new Font("Times New Roman", 12, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+                lblsID[i].ForeColor = Color.Blue;
+                this.Controls.Add(lblsID[i]);
+
+
+                lblsTip[i] = new Label();
+                Point point6 = new Point(300, 66 + DIMENSIUNE_PAS_Y * i);
+                lblsTip[i].Location = point6;
+                lblsTip[i].Text = cars[i].TypeofCar.ToString();
+                lblsTip[i].TextAlign = ContentAlignment.MiddleCenter;
+                lblsTip[i].Font = new Font("Times New Roman", 12, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+                lblsTip[i].ForeColor = Color.Blue;
+                this.Controls.Add(lblsTip[i]);
+
+
+                lblsSOLD[i] = new Label();
+                Point point8 = new Point(400, 66 + DIMENSIUNE_PAS_Y * i);
+                lblsSOLD[i].Location = point8;
+                lblsSOLD[i].Text = cars[i].Balance.ToString() + " Lei";
+                lblsSOLD[i].TextAlign = ContentAlignment.MiddleCenter;
+                lblsSOLD[i].Font = new Font("Courier New", 12);
+                lblsSOLD[i].ForeColor = Color.Blue;
+                this.Controls.Add(lblsSOLD[i]);
+                i++;
+            }
+        }
+        private void BtnAfisareTipMasina_Click(object sender, EventArgs e)
+        {
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            string listaTipMasini = "Lista de Tip-uri de masini:\n";
+            for (int i = 0; i < nrCars; i++)
+            {
+                listaTipMasini += cars[i].TypeofCar.ToString() + "\n";
+            }
+            MessageBox.Show(listaTipMasini);
+            /*for (int i = 0;i < nrCars; i++)
+            {
+                if (cars[i].TypeofCar.ToString() == "Family")
+                {
+                    PictureBox pictureBox = new PictureBox();
+                    pictureBox.Image = Image.FromFile(@"C:\Imagini\suv1.jpg");
+                    pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                    pictureBox.ClientSize = new Size(400, 300);
+                    Form form = new Form();
+                    form.Text = "SUV Image";
+                    form.ClientSize = pictureBox.ClientSize;
+                    form.Controls.Add(pictureBox);
+                    form.ShowDialog();
+                }
+                else if (cars[i].TypeofCar.ToString() == "Moto")
+                {
+                    PictureBox pictureBox = new PictureBox();
+                    pictureBox.Image = Image.FromFile(@"C:\Imagini\moto1.jpg");
+                    pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                    pictureBox.ClientSize = new Size(600, 300);
+                    Form form = new Form();
+                    form.Text = "Moto Image";
+                    form.ClientSize = pictureBox.ClientSize;
+                    form.Controls.Add(pictureBox);
+                    form.ShowDialog();
+                }
+            }*/
+        }
+        private void BtnAfisareIdMasini_Click(object sender, EventArgs e)
+        {
+            Car[] cars = adminCar.GetCars(out int nrCars);
+            string listaIdMasini = "Lista de ID-uri de mașini:\n";
+            for (int i = 0; i < nrCars; i++)
+            {
+                listaIdMasini += cars[i].ID.ToString() + "\n";
+            }
+            MessageBox.Show(listaIdMasini);
+        }
+
+    }
+}
+
+
+
+
+
+
+
+https://www.youtube.com/watch?v=BtOEztT1Qzk&ab_channel=RJCodeAdvanceEN
+https://ru.freepik.com/free-vector/cross-icons-collection_1638279.htm#query=white%20X%20icons&position=1&from_view=search&track=ais
+https://fpdl.in/
+https://www.youtube.com/watch?v=nLfzH4xOVqo&ab_channel=C%23UiAcademy
